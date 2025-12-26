@@ -1,4 +1,9 @@
-// Loads adjacency-dict DB: ISO_DB[n][k] = array of adjacency dicts
+// app.js  (FULL FILE)
+// - Fixes Chrome SVG variable issue by using NUMBERS for SVG geometry attrs
+// - Keeps CSS variables only for colors (stroke/fill)
+// - Computes isomorphism via brute-force perms (n<=8) and prints ONE mapping
+// - Uses palette CSS vars --c1..--c8 (so dark mode can darken them in CSS)
+
 let ISO_DB = null;
 
 const title = document.getElementById("title");
@@ -18,8 +23,16 @@ let selected = null;
 const edges = new Set(); // "a-b" added edges (non-cycle)
 
 // geometry per panel
-const L = { cx:260, cy:220, R:165 };
-const Rg= { cx:260, cy:220, R:165 };
+const L = { cx: 260, cy: 220, R: 165 };
+const Rg = { cx: 260, cy: 220, R: 165 };
+
+// IMPORTANT: Chrome does NOT reliably support CSS vars in SVG geometry attributes.
+// So keep these numeric:
+const RIM_W = 8;
+const EDGE_W = 6;
+const V_R = 18;
+const V_STROKE_W = 2.2;
+const LABEL_FONT = 14;
 
 function getPalette(){
   const cs = getComputedStyle(document.body);
@@ -90,10 +103,10 @@ function drawGraph(svg, G, edgeSet, selectedVertex=null, clickable=false){
 
   // rim
   svg.appendChild(el("circle",{
-    cx:G.cx, cy:G.cy, r:G.R,
-    fill:"none",
-    stroke:"var(--rim)",
-    "stroke-width":"var(--rimW)"
+    cx: G.cx, cy: G.cy, r: G.R,
+    fill: "none",
+    stroke: "var(--rim)",
+    "stroke-width": RIM_W
   }));
 
   // added edges
@@ -103,7 +116,7 @@ function drawGraph(svg, G, edgeSet, selectedVertex=null, clickable=false){
     svg.appendChild(el("line",{
       x1:A.x, y1:A.y, x2:B.x, y2:B.y,
       stroke:"var(--edge)",
-      "stroke-width":"var(--edgeW)",
+      "stroke-width": EDGE_W,
       "stroke-linecap":"round"
     }));
   }
@@ -117,17 +130,18 @@ function drawGraph(svg, G, edgeSet, selectedVertex=null, clickable=false){
 
     g.appendChild(el("circle",{
       class:"vCircle",
-      cx:p.x, cy:p.y, r:"var(--vR)",
+      cx:p.x, cy:p.y, r: V_R,
       fill: palette[(i-1) % palette.length],
       stroke:"var(--vStroke)",
-      "stroke-width":"var(--vStrokeW)"
+      "stroke-width": V_STROKE_W
     }));
 
+    // keep text centered even when circle scales (Chrome-safe)
     const t = el("text",{
       x:p.x, y:p.y,
       "text-anchor":"middle",
       "dominant-baseline":"middle",
-      "font-size":"14",
+      "font-size": LABEL_FONT,
       "font-weight":"850",
       fill:"var(--fg)",
       style:"pointer-events:none;"
@@ -143,7 +157,7 @@ function drawGraph(svg, G, edgeSet, selectedVertex=null, clickable=false){
   }
 }
 
-// ---- ISOMORPHISM (brute-force perms; n<=8) + RETURN A MAPPING ----
+// ---------- ISOMORPHISM (brute-force perms; n<=8) + RETURN ONE MAPPING ----------
 
 function edgeCountFromAdj(adj){
   let sum = 0;
@@ -219,7 +233,7 @@ function isomorphicMapping(adj1, adj2){
 }
 
 function formatMapping(perm){
-  // perm: i -> perm[i-1]
+  if (!perm) return "";
   const parts = [];
   for (let i=1;i<=perm.length;i++){
     parts.push(`${i} ↦ ${perm[i-1]}`);
@@ -340,8 +354,7 @@ document.getElementById("clearEdges").addEventListener("click", ()=>{
 document.getElementById("toggleTheme").addEventListener("click", ()=>{
   const root = document.body;
   root.dataset.theme = (root.dataset.theme === "dark") ? "light" : "dark";
-  // redraw so vertex colors update immediately
-  render();
+  render(); // redraw so palette updates immediately
 });
 
 window.addEventListener("keydown", (e)=>{
