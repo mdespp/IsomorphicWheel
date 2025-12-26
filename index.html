@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Isomorphic UI — Cycle Editor</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body data-theme="light">
+  <div class="card">
+    <div class="top">
+      <div>
+        <div class="title" id="title">Cycle (outer rim) — n = 6</div>
+        <div class="subtitle">
+          Click two vertices to add/remove an edge. Cycle edges are ignored. Esc clears selection.
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="pill">
+          <div id="nLabel">n=6</div>
+          <input id="nSlider" type="range" min="6" max="8" step="1" value="6" />
+        </div>
+        <button class="btn" id="clearEdges">Clear edges</button>
+        <button class="btn" id="toggleTheme">Theme</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <!-- LEFT: editor graph -->
+      <div class="panel">
+        <div class="panelTitle">
+          <div>Graph</div>
+          <div class="smallMuted" id="edgeCount">0 edges</div>
+        </div>
+        <div class="svgWrap">
+          <svg id="vizLeft" width="520" height="440" viewBox="0 0 520 440" aria-label="Editor graph"></svg>
+        </div>
+      </div>
+
+      <!-- RIGHT: iso output + matched graph -->
+      <div class="panel">
+        <div class="panelTitle">
+          <div>Isomorphism</div>
+          <div class="smallMuted" id="isoText"></div>
+        </div>
+        <div class="smallMuted" style="margin-bottom:10px;" id="isoKey"></div>
+
+        <div class="svgWrap">
+          <svg id="vizRight" width="520" height="440" viewBox="0 0 520 440" aria-label="Matched graph"></svg>
+        </div>
+
+        <div class="mappingBox">
+          <div class="mappingTitle">Mapping</div>
+          <div id="mapText" class="mono muted"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="./app.js"></script>
+</body>
+</html>
